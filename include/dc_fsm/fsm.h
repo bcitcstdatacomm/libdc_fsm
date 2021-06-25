@@ -1,5 +1,5 @@
-#ifndef DC_FSM_H
-#define DC_FSM_H
+#ifndef LIBDC_FSM_FSM_H
+#define LIBDC_FSM_FSM_H
 
 
 /*
@@ -50,4 +50,4 @@ void dc_fsm_info_destroy(struct dc_fsm_info **pinfo);
 int dc_fsm_run(struct dc_fsm_info *info, int *from_state_id, int *to_state_id, void *arg, const struct dc_fsm_transition transitions[]);
 
 
-#endif
+#endif // LIBDC_FSM_FSM_H
