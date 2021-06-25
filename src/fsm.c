@@ -84,11 +84,7 @@ int dc_fsm_run(struct dc_fsm_info *info,
             *from_state_id = from_id;
             *to_state_id   = to_id;
 
-            if(info->verbose_file)
-            {
-                fprintf(info->verbose_file, "FSM: %s - no perform method found moving from %d to %d\n", info->name, from_id, to_id);
-            }
-
+            fprintf(stderr, "FSM: %s - no perform method found moving from %d to %d\n", info->name, from_id, to_id);
             // TODO: this is not clear to the programmer of the application that there was an error - how to fix?
             return -1;
         }
