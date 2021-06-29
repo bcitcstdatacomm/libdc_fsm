@@ -20,6 +20,7 @@
 
 
 #include <stdio.h>
+#include <dc_posix/posix_env.h>
 
 
 struct dc_fsm_info;
@@ -45,8 +46,29 @@ struct dc_fsm_transition
 };
 
 
-struct dc_fsm_info *dc_fsm_info_create(const char *name, FILE *verbose_file);
-void dc_fsm_info_destroy(struct dc_fsm_info **pinfo);
+/**
+ *
+ * @param name
+ * @param verbose_file
+ * @return
+ */
+struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env, const char *name, FILE *verbose_file);
+
+/**
+ *
+ * @param pinfo
+ */
+void dc_fsm_info_destroy(const struct dc_posix_env *env, struct dc_fsm_info **pinfo);
+
+/**
+ *
+ * @param info
+ * @param from_state_id
+ * @param to_state_id
+ * @param arg
+ * @param transitions
+ * @return
+ */
 int dc_fsm_run(struct dc_fsm_info *info, int *from_state_id, int *to_state_id, void *arg, const struct dc_fsm_transition transitions[]);
 
 

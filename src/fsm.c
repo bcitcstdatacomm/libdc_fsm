@@ -16,9 +16,8 @@
 
 
 #include "fsm.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <dc_posix/stdlib.h>
 
 
 static dc_fsm_state_func fsm_transition(int from_id, int to_id, const struct dc_fsm_transition transitions[]);
@@ -32,12 +31,13 @@ struct dc_fsm_info
     int current_state_id;
 };
 
-struct dc_fsm_info *dc_fsm_info_create(const char *name, FILE *verbose_file)
+struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env, const char *name, FILE *verbose_file)
 {
     struct dc_fsm_info *info;
+    int err;
 
-    info = calloc(1, sizeof(struct dc_fsm_info));
-    info->name = calloc(1, strlen(name) + 1);
+    info = dc_malloc(env, &err, sizeof(struct dc_fsm_info));
+    info->name = dc_malloc(env, &err, strlen(name) + 1);
     strcpy(info->name, name);
     info->verbose_file     = verbose_file;
     info->from_state_id    = DC_FSM_INIT;
@@ -47,12 +47,12 @@ struct dc_fsm_info *dc_fsm_info_create(const char *name, FILE *verbose_file)
 }
 
 
-void dc_fsm_info_destroy(struct dc_fsm_info **pinfo)
+void dc_fsm_info_destroy(const struct dc_posix_env *env, struct dc_fsm_info **pinfo)
 {
     memset((*pinfo)->name, '\0', strlen((*pinfo)->name));
-    free((*pinfo)->name);
+    dc_free(env, (*pinfo)->name);
     memset(*pinfo, 0, sizeof(struct dc_fsm_info));
-    free(*pinfo);
+    dc_free(env, *pinfo);
     *pinfo = NULL;
 }
 
