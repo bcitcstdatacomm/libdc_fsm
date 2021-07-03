@@ -16,11 +16,11 @@
 
 
 #include "fsm.h"
-#include <string.h>
 #include <dc_posix/stdlib.h>
+#include <string.h>
 
 
-static dc_fsm_state_func fsm_transition(int from_id, int to_id, const struct dc_fsm_transition transitions[]);
+static dc_fsm_state_func fsm_transition(const struct dc_posix_env *env, int from_id, int to_id, const struct dc_fsm_transition transitions[]);
 
 
 struct dc_fsm_info
@@ -36,6 +36,7 @@ struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env, const cha
     struct dc_fsm_info *info;
     int err;
 
+    DC_TRACE(env);
     info = dc_malloc(env, &err, sizeof(struct dc_fsm_info));
     info->name = dc_malloc(env, &err, strlen(name) + 1);
     strcpy(info->name, name);
@@ -49,14 +50,33 @@ struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env, const cha
 
 void dc_fsm_info_destroy(const struct dc_posix_env *env, struct dc_fsm_info **pinfo)
 {
-    memset((*pinfo)->name, '\0', strlen((*pinfo)->name));
-    dc_free(env, (*pinfo)->name);
-    memset(*pinfo, 0, sizeof(struct dc_fsm_info));
-    dc_free(env, *pinfo);
-    *pinfo = NULL;
+    struct dc_fsm_info *info;
+
+    DC_TRACE(env);
+    info = *pinfo;
+
+    if(env->zero_free)
+    {
+        memset(info->name, '\0', strlen((*pinfo)->name));
+    }
+
+    dc_free(env, info->name);
+
+    if(env->zero_free)
+    {
+        memset(info, 0, sizeof(struct dc_fsm_info));
+    }
+
+    dc_free(env, info);
+
+    if(env->null_free)
+    {
+        *pinfo = NULL;
+    }
 }
 
-int dc_fsm_run(struct dc_fsm_info *info,
+int dc_fsm_run(const struct dc_posix_env *env,
+               struct dc_fsm_info *info,
                int *from_state_id,
                int *to_state_id,
                void *arg,
@@ -65,6 +85,7 @@ int dc_fsm_run(struct dc_fsm_info *info,
     int from_id;
     int to_id;
 
+    DC_TRACE(env);
     from_id = info->from_state_id;
     to_id   = info->current_state_id;
 
@@ -77,7 +98,7 @@ int dc_fsm_run(struct dc_fsm_info *info,
             fprintf(info->verbose_file, "FSM: %s - moving from state: %d to state: %d\n", info->name, from_id, to_id);
         }
 
-        perform = fsm_transition(from_id, to_id, transitions);
+        perform = fsm_transition(env, from_id, to_id, transitions);
 
         if(perform == NULL)
         {
@@ -92,7 +113,7 @@ int dc_fsm_run(struct dc_fsm_info *info,
         info->from_state_id    = from_id;
         info->current_state_id = to_id;
         from_id                = to_id;
-        to_id                  = perform(arg);
+        to_id                  = perform(env, arg);
     }
     while(to_id != DC_FSM_EXIT);
 
@@ -103,10 +124,11 @@ int dc_fsm_run(struct dc_fsm_info *info,
     return 0;
 }
 
-static dc_fsm_state_func fsm_transition(int from_id, int to_id, const struct dc_fsm_transition transitions[])
+static dc_fsm_state_func fsm_transition(const struct dc_posix_env *env, int from_id, int to_id, const struct dc_fsm_transition transitions[])
 {
     const struct dc_fsm_transition *transition;
 
+    DC_TRACE(env);
     transition = &transitions[0];
 
     while(transition->from_id != DC_FSM_IGNORE)
