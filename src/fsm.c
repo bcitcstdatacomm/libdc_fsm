@@ -17,7 +17,7 @@
 
 #include "fsm.h"
 #include <dc_posix/stdlib.h>
-#include <string.h>
+#include <dc_posix/string.h>
 
 
 static dc_fsm_state_func fsm_transition(const struct dc_posix_env *env, int from_id, int to_id, const struct dc_fsm_transition transitions[]);
@@ -26,23 +26,40 @@ static dc_fsm_state_func fsm_transition(const struct dc_posix_env *env, int from
 struct dc_fsm_info
 {
     char *name;
+    size_t name_length;
     FILE *verbose_file;
     int from_state_id;
     int current_state_id;
 };
 
-struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env, const char *name, FILE *verbose_file)
+struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env,
+                                       struct dc_error           *err,
+                                       const char                *name,
+                                       FILE                      *verbose_file)
 {
     struct dc_fsm_info *info;
-    int err;
 
     DC_TRACE(env);
-    info = dc_malloc(env, &err, sizeof(struct dc_fsm_info));
-    info->name = dc_malloc(env, &err, strlen(name) + 1);
-    strcpy(info->name, name);
-    info->verbose_file     = verbose_file;
-    info->from_state_id    = DC_FSM_INIT;
-    info->current_state_id = DC_FSM_USER_START;
+    info = dc_malloc(env, err, sizeof(struct dc_fsm_info));
+
+    if(DC_HAS_NO_ERROR(err))
+    {
+        info->verbose_file     = verbose_file;
+        info->from_state_id    = DC_FSM_INIT;
+        info->current_state_id = DC_FSM_USER_START;
+        info->name_length      = dc_strlen(env, name) + 1;
+        info->name             = dc_malloc(env, err, info->name_length);
+
+        if(DC_HAS_NO_ERROR(err))
+        {
+            dc_strcpy(env, info->name, name);
+        }
+        else
+        {
+            dc_free(env, info, sizeof(struct dc_fsm_info));
+            info = NULL;
+        }
+    }
 
     return info;
 }
@@ -54,20 +71,8 @@ void dc_fsm_info_destroy(const struct dc_posix_env *env, struct dc_fsm_info **pi
 
     DC_TRACE(env);
     info = *pinfo;
-
-    if(env->zero_free)
-    {
-        memset(info->name, '\0', strlen((*pinfo)->name));
-    }
-
-    dc_free(env, info->name);
-
-    if(env->zero_free)
-    {
-        memset(info, 0, sizeof(struct dc_fsm_info));
-    }
-
-    dc_free(env, info);
+    dc_free(env, info->name, info->name_length);
+    dc_free(env, info, sizeof(struct dc_fsm_info));
 
     if(env->null_free)
     {
@@ -75,12 +80,13 @@ void dc_fsm_info_destroy(const struct dc_posix_env *env, struct dc_fsm_info **pi
     }
 }
 
-int dc_fsm_run(const struct dc_posix_env *env,
-               struct dc_fsm_info *info,
-               int *from_state_id,
-               int *to_state_id,
-               void *arg,
-               const struct dc_fsm_transition transitions[])
+int dc_fsm_run(const struct dc_posix_env      *env,
+               struct dc_error                *err,
+               struct dc_fsm_info             *info,
+               int                            *from_state_id,
+               int                            *to_state_id,
+               void                           *arg,
+               const struct dc_fsm_transition  transitions[])
 {
     int from_id;
     int to_id;
@@ -113,7 +119,13 @@ int dc_fsm_run(const struct dc_posix_env *env,
         info->from_state_id    = from_id;
         info->current_state_id = to_id;
         from_id                = to_id;
-        to_id                  = perform(env, arg);
+        to_id                  = perform(env, err, arg);
+
+        if(DC_HAS_ERROR(err))
+        {
+            // we had an issue that we can't cope with
+            break;
+        }
     }
     while(to_id != DC_FSM_EXIT);
 

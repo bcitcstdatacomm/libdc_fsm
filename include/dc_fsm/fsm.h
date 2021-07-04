@@ -35,7 +35,7 @@ typedef enum
 } dc_fsm_state;
 
 
-typedef int (*dc_fsm_state_func)(const struct dc_posix_env *env, void *arg);
+typedef int (*dc_fsm_state_func)(const struct dc_posix_env *env, struct dc_error *err, void *arg);
 
 
 struct dc_fsm_transition
@@ -53,7 +53,7 @@ struct dc_fsm_transition
  * @param verbose_file
  * @return
  */
-struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env, const char *name, FILE *verbose_file);
+struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env, struct dc_error *err, const char *name, FILE *verbose_file);
 
 /**
  *
@@ -72,7 +72,7 @@ void dc_fsm_info_destroy(const struct dc_posix_env *env, struct dc_fsm_info **pi
  * @param transitions
  * @return
  */
-int dc_fsm_run(const struct dc_posix_env *env, struct dc_fsm_info *info, int *from_state_id, int *to_state_id, void *arg, const struct dc_fsm_transition transitions[]);
+int dc_fsm_run(const struct dc_posix_env *env, struct dc_error *err, struct dc_fsm_info *info, int *from_state_id, int *to_state_id, void *arg, const struct dc_fsm_transition transitions[]);
 
 
 #endif // LIBDC_FSM_FSM_H
