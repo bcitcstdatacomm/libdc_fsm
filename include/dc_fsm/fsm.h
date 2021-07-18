@@ -53,7 +53,7 @@ struct dc_fsm_transition
  * @param verbose_file
  * @return
  */
-struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env, struct dc_error *err, const char *name, FILE *verbose_file);
+struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env, struct dc_error *err, const char *name);
 
 /**
  *

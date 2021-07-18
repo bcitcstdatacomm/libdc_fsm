@@ -23,28 +23,32 @@
 static dc_fsm_state_func fsm_transition(const struct dc_posix_env *env, int from_id, int to_id, const struct dc_fsm_transition transitions[]);
 
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpadded"
 struct dc_fsm_info
 {
     char *name;
     size_t name_length;
-    FILE *verbose_file;
     int from_state_id;
     int current_state_id;
-};
+    void (*notify_changing)(const struct dc_posix_env *env, struct dc_error *err, int from_state_id, int to_state_id);
+    void (*notify_changed)(const struct dc_posix_env *env, struct dc_error *err, int from_state_id, int to_state_id, int next_id);
+    void (*notify_bad_state_transition)(const struct dc_posix_env *env, struct dc_error *err, int from_state_id, int to_state_id);
+} __attribute__((aligned(64)));
+#pragma GCC diagnostic pop
+
 
 struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env,
                                        struct dc_error           *err,
-                                       const char                *name,
-                                       FILE                      *verbose_file)
+                                       const char                *name)
 {
     struct dc_fsm_info *info;
 
     DC_TRACE(env);
-    info = dc_malloc(env, err, sizeof(struct dc_fsm_info));
+    info = dc_calloc(env, err, 1, sizeof(struct dc_fsm_info));
 
     if(DC_HAS_NO_ERROR(err))
     {
-        info->verbose_file     = verbose_file;
         info->from_state_id    = DC_FSM_INIT;
         info->current_state_id = DC_FSM_USER_START;
         info->name_length      = dc_strlen(env, name) + 1;
@@ -98,10 +102,12 @@ int dc_fsm_run(const struct dc_posix_env      *env,
     do
     {
         dc_fsm_state_func perform;
+        int               next_id;
 
-        if(info->verbose_file)
+        // notify moving to
+        if(info->notify_changing)
         {
-            fprintf(info->verbose_file, "FSM: %s - moving from state: %d to state: %d\n", info->name, from_id, to_id);
+            info->notify_changing(env, err, from_id, to_id);
         }
 
         perform = fsm_transition(env, from_id, to_id, transitions);
@@ -111,7 +117,12 @@ int dc_fsm_run(const struct dc_posix_env      *env,
             *from_state_id = from_id;
             *to_state_id   = to_id;
 
-            fprintf(stderr, "FSM: %s - no perform method found moving from %d to %d\n", info->name, from_id, to_id);
+            // notify error
+            if(info->notify_bad_state_transition)
+            {
+                info->notify_bad_state_transition(env, err, from_id, to_id);
+            }
+
             // TODO: this is not clear to the programmer of the application that there was an error - how to fix?
             return -1;
         }
@@ -119,7 +130,15 @@ int dc_fsm_run(const struct dc_posix_env      *env,
         info->from_state_id    = from_id;
         info->current_state_id = to_id;
         from_id                = to_id;
-        to_id                  = perform(env, err, arg);
+        next_id                = perform(env, err, arg);
+
+        // notify moving from
+        if(info->notify_changed)
+        {
+            info->notify_changed(env, err, from_id, to_id, next_id);
+        }
+
+        to_id = next_id;
 
         if(DC_HAS_ERROR(err))
         {
