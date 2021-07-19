@@ -16,8 +16,8 @@
 
 
 #include "fsm.h"
-#include <dc_posix/stdlib.h>
-#include <dc_posix/string.h>
+#include <dc_posix/dc_stdlib.h>
+#include <dc_posix/dc_string.h>
 
 
 static dc_fsm_state_func fsm_transition(const struct dc_posix_env *env, int from_id, int to_id, const struct dc_fsm_transition transitions[]);
@@ -47,14 +47,14 @@ struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env,
     DC_TRACE(env);
     info = dc_calloc(env, err, 1, sizeof(struct dc_fsm_info));
 
-    if(DC_HAS_NO_ERROR(err))
+    if(dc_error_has_no_error(err))
     {
         info->from_state_id    = DC_FSM_INIT;
         info->current_state_id = DC_FSM_USER_START;
         info->name_length      = dc_strlen(env, name) + 1;
         info->name             = dc_malloc(env, err, info->name_length);
 
-        if(DC_HAS_NO_ERROR(err))
+        if(dc_error_has_no_error(err))
         {
             dc_strcpy(env, info->name, name);
         }
@@ -140,7 +140,7 @@ int dc_fsm_run(const struct dc_posix_env      *env,
 
         to_id = next_id;
 
-        if(DC_HAS_ERROR(err))
+        if(dc_error_has_error(err))
         {
             // we had an issue that we can't cope with
             break;
