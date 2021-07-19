@@ -9,8 +9,10 @@ set(SOURCE_LIST
         "fsm.c"
         )
 
+add_definitions( -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 )
+
 if(APPLE)
-    add_definitions( -D_POSIX_C_SOURCE=200809L -D_XOPEN_SOURCE=700 )
+    add_definitions( -D_DARWIN_C_SOURCE )
 endif()
 
 set(CMAKE_C_CLANG_TIDY "clang-tidy;-checks=*,-llvmlibc-restrict-system-libc-headers,-cppcoreguidelines-init-variables,-clang-analyzer-security.insecureAPI.strcpy,-concurrency-mt-unsafe,-android-cloexec-accept,-android-cloexec-dup,-google-readability-todo,-cppcoreguidelines-avoid-magic-numbers,-readability-magic-numbers;--quiet")
