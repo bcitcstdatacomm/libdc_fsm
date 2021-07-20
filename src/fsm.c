@@ -14,33 +14,35 @@
  * limitations under the License.
  */
 
-
 #include "fsm.h"
 #include <dc_posix/dc_stdlib.h>
 #include <dc_posix/dc_string.h>
 
-
-static dc_fsm_state_func fsm_transition(const struct dc_posix_env *env, int from_id, int to_id, const struct dc_fsm_transition transitions[]);
-
+static dc_fsm_state_func
+fsm_transition(const struct dc_posix_env *env, int from_id, int to_id, const struct dc_fsm_transition transitions[]);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpadded"
 struct dc_fsm_info
 {
-    char *name;
+    char * name;
     size_t name_length;
-    int from_state_id;
-    int current_state_id;
+    int    from_state_id;
+    int    current_state_id;
     void (*notify_changing)(const struct dc_posix_env *env, struct dc_error *err, int from_state_id, int to_state_id);
-    void (*notify_changed)(const struct dc_posix_env *env, struct dc_error *err, int from_state_id, int to_state_id, int next_id);
-    void (*notify_bad_state_transition)(const struct dc_posix_env *env, struct dc_error *err, int from_state_id, int to_state_id);
+    void (*notify_changed)(const struct dc_posix_env *env,
+                           struct dc_error *          err,
+                           int                        from_state_id,
+                           int                        to_state_id,
+                           int                        next_id);
+    void (*notify_bad_state_transition)(const struct dc_posix_env *env,
+                                        struct dc_error *          err,
+                                        int                        from_state_id,
+                                        int                        to_state_id);
 } __attribute__((aligned(64)));
 #pragma GCC diagnostic pop
 
-
-struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env,
-                                       struct dc_error           *err,
-                                       const char                *name)
+struct dc_fsm_info *   dc_fsm_info_create(const struct dc_posix_env *env, struct dc_error *err, const char *name)
 {
     struct dc_fsm_info *info;
 
@@ -68,7 +70,6 @@ struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env,
     return info;
 }
 
-
 void dc_fsm_info_destroy(const struct dc_posix_env *env, struct dc_fsm_info **pinfo)
 {
     struct dc_fsm_info *info;
@@ -84,13 +85,13 @@ void dc_fsm_info_destroy(const struct dc_posix_env *env, struct dc_fsm_info **pi
     }
 }
 
-int dc_fsm_run(const struct dc_posix_env      *env,
-               struct dc_error                *err,
-               struct dc_fsm_info             *info,
-               int                            *from_state_id,
-               int                            *to_state_id,
-               void                           *arg,
-               const struct dc_fsm_transition  transitions[])
+int dc_fsm_run(const struct dc_posix_env *    env,
+               struct dc_error *              err,
+               struct dc_fsm_info *           info,
+               int *                          from_state_id,
+               int *                          to_state_id,
+               void *                         arg,
+               const struct dc_fsm_transition transitions[])
 {
     int from_id;
     int to_id;
@@ -145,17 +146,17 @@ int dc_fsm_run(const struct dc_posix_env      *env,
             // we had an issue that we can't cope with
             break;
         }
-    }
-    while(to_id != DC_FSM_EXIT);
+    } while(to_id != DC_FSM_EXIT);
 
-// commenting this out will give us the last non-exit transition, probably more useful
-//    *from_state_id = from_id;
-//    *to_state_id   = to_id;
+    // commenting this out will give us the last non-exit transition, probably more useful
+    //    *from_state_id = from_id;
+    //    *to_state_id   = to_id;
 
     return 0;
 }
 
-static dc_fsm_state_func fsm_transition(const struct dc_posix_env *env, int from_id, int to_id, const struct dc_fsm_transition transitions[])
+static dc_fsm_state_func
+fsm_transition(const struct dc_posix_env *env, int from_id, int to_id, const struct dc_fsm_transition transitions[])
 {
     const struct dc_fsm_transition *transition;
 
@@ -164,8 +165,7 @@ static dc_fsm_state_func fsm_transition(const struct dc_posix_env *env, int from
 
     while(transition->from_id != DC_FSM_IGNORE)
     {
-        if(transition->from_id == from_id &&
-           transition->to_id == to_id)
+        if(transition->from_id == from_id && transition->to_id == to_id)
         {
             return transition->perform;
         }

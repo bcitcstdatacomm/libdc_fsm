@@ -9,6 +9,14 @@ project(libdc_fsm
         DESCRIPTION ""
         LANGUAGES C)
 
+set(HEADER_LIST
+        "${libdc_fsm_SOURCE_DIR}/include/dc_fsm/fsm.h"
+        )
+
+set(SOURCE_LIST
+        "${libdc_fsm_SOURCE_DIR}/src/fsm.c"
+        )
+
 ### Require out-of-source builds
 # this still creates a CMakeFiles directory and CMakeCache.txt- can we delete them?
 file(TO_CMAKE_PATH "${PROJECT_BINARY_DIR}/CMakeLists.txt" LOC_PATH)
