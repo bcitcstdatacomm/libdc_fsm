@@ -1,4 +1,4 @@
-# Documentation for libdc_fsm Library                             {#mainpage}
+# Documentation for libdc_fsm Library {#mainpage}
 
 This is the documentation for my simple example library.
 

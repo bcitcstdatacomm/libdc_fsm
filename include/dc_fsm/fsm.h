@@ -22,20 +22,22 @@
 
 struct dc_fsm_info;
 
-typedef enum {
-  DC_FSM_IGNORE = -1, // -1
-  DC_FSM_INIT,        // 0
-  DC_FSM_EXIT,        // 1
-  DC_FSM_USER_START,  // 2
+typedef enum
+{
+    DC_FSM_IGNORE = -1, // -1
+    DC_FSM_INIT,        // 0
+    DC_FSM_EXIT,        // 1
+    DC_FSM_USER_START,  // 2
 } dc_fsm_state;
 
 typedef int (*dc_fsm_state_func)(const struct dc_posix_env *env,
                                  struct dc_error *err, void *arg);
 
-struct dc_fsm_transition {
-  int from_id;
-  int to_id;
-  dc_fsm_state_func perform;
+struct dc_fsm_transition
+{
+    int from_id;
+    int to_id;
+    dc_fsm_state_func perform;
 };
 
 /**
