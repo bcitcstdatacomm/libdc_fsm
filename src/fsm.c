@@ -21,8 +21,6 @@
 static dc_fsm_state_func
 fsm_transition(const struct dc_posix_env *env, int from_id, int to_id, const struct dc_fsm_transition transitions[]);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpadded"
 struct dc_fsm_info
 {
     char * name;
@@ -39,8 +37,7 @@ struct dc_fsm_info
                                         struct dc_error *          err,
                                         int                        from_state_id,
                                         int                        to_state_id);
-} __attribute__((aligned(64)));
-#pragma GCC diagnostic pop
+};
 
 struct dc_fsm_info *   dc_fsm_info_create(const struct dc_posix_env *env, struct dc_error *err, const char *name)
 {
