@@ -58,6 +58,27 @@ struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env,
 void dc_fsm_info_destroy(const struct dc_posix_env *env,
                          struct dc_fsm_info **pinfo);
 
+const char *dc_fsm_info_get_name(const struct dc_fsm_info *info);
+
+void dc_fsm_info_set_will_change_state(struct dc_fsm_info *info, void (*notifier)(const struct dc_posix_env *env,
+                                                                                  struct dc_error *err,
+                                                                                  const struct dc_fsm_info *info,
+                                                                                  int from_state_id,
+                                                                                  int to_state_id));
+
+void dc_fsm_info_set_did_change_state(struct dc_fsm_info *info, void (*notifier)(const struct dc_posix_env *env,
+                        struct dc_error *err,
+                        const struct dc_fsm_info *info,
+                        int from_state_id,
+                        int to_state_id,
+                        int next_id));
+
+void dc_fsm_info_set_bad_change_state(struct dc_fsm_info *info, void (*notifier)(const struct dc_posix_env *env,
+                                        struct dc_error *err,
+                                        const struct dc_fsm_info *info,
+                                        int from_state_id,
+                                        int to_state_id));
+
 /**
  *
  * @param env
