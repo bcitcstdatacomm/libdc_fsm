@@ -26,6 +26,7 @@ static void bad_change_state(const struct dc_posix_env *env,
 static int red(const struct dc_posix_env *env, struct dc_error *err, void *arg);
 static int green(const struct dc_posix_env *env, struct dc_error *err, void *arg);
 static int yellow(const struct dc_posix_env *env, struct dc_error *err, void *arg);
+static int change_colour(const struct dc_posix_env *env, struct dc_error *err, const char *name, const struct timespec *time, int next_state);
 static int state_error(const struct dc_posix_env *env, struct dc_error *err, void *arg);
 
 
@@ -134,18 +135,8 @@ static int red(const struct dc_posix_env *env, struct dc_error *err, void *arg)
     int next_state;
     struct times *timing;
 
-    printf("RED\n");
     timing = (struct times *)arg;
-    dc_nanosleep(env, err, &timing->red_time, NULL);
-
-    if(dc_error_has_no_error(err))
-    {
-        next_state = GREEN;
-    }
-    else
-    {
-        next_state = ERROR;
-    }
+    next_state = change_colour(env, err, "RED", &timing->red_time, GREEN);
 
     return next_state;
 }
@@ -155,18 +146,8 @@ static int green(const struct dc_posix_env *env, struct dc_error *err, void *arg
     int next_state;
     struct times *timing;
 
-    printf("GREEN\n");
     timing = (struct times *)arg;
-    dc_nanosleep(env, err, &timing->green_time, NULL);
-
-    if(dc_error_has_no_error(err))
-    {
-        next_state = YELLOW;
-    }
-    else
-    {
-        next_state = ERROR;
-    }
+    next_state = change_colour(env, err, "GREEN", &timing->green_time, YELLOW);
 
     return next_state;
 }
@@ -176,20 +157,29 @@ static int yellow(const struct dc_posix_env *env, struct dc_error *err, void *ar
     int next_state;
     struct times *timing;
 
-    printf("YELLOW\n");
     timing = (struct times *)arg;
-    dc_nanosleep(env, err, &timing->yellow_time, NULL);
+    next_state = change_colour(env, err, "YELLOW", &timing->yellow_time, RED);
+
+    return next_state;
+}
+
+static int change_colour(const struct dc_posix_env *env, struct dc_error *err, const char *name, const struct timespec *time, int next_state)
+{
+    int ret_val;
+
+    printf("%s\n", name);
+    dc_nanosleep(env, err, time, NULL);
 
     if(dc_error_has_no_error(err))
     {
-        next_state = RED;
+        ret_val = next_state;
     }
     else
     {
-        next_state = ERROR;
+        ret_val = ERROR;
     }
 
-    return next_state;
+    return ret_val;
 }
 
 static int state_error(const struct dc_posix_env *env, struct dc_error *err, void *arg)
