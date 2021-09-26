@@ -154,6 +154,9 @@ int dc_fsm_run(const struct dc_posix_env *env,
 
         if(perform == NULL)
         {
+            char *error_message;
+            size_t error_message_size;
+
             *from_state_id = from_id;
             *to_state_id = to_id;
 
@@ -163,7 +166,13 @@ int dc_fsm_run(const struct dc_posix_env *env,
                 info->bad_change_state(env, err, info, from_id, to_id);
             }
 
-            // TODO: this is not clear to the programmer of the application that there was an error - how to fix?
+            // TODO: wrap the printf functions
+            error_message_size = (size_t)snprintf(NULL, 0, "Unknown state transition: %d -> %d ", from_id, to_id);
+            error_message = dc_malloc(env, err, error_message_size);
+            sprintf(error_message, "Unknown state transition: %d -> %d ", from_id, to_id);
+            DC_ERROR_RAISE_USER(err, error_message, 1);
+            dc_free(env, error_message, error_message_size);
+
             return -1;
         }
 
@@ -189,8 +198,8 @@ int dc_fsm_run(const struct dc_posix_env *env,
     while(to_id != DC_FSM_EXIT);
 
     // commenting this out will give us the last non-exit transition, probably more useful
-    //    *from_state_id = from_id;
-    //    *to_state_id   = to_id;
+    *from_state_id = from_id;
+    *to_state_id   = to_id;
 
     return 0;
 }
@@ -213,6 +222,5 @@ fsm_transition(const struct dc_posix_env *env, int from_id, int to_id, const str
         transition = transitions++;
     }
 
-    printf("XXX\n");
     return NULL;
 }

@@ -35,7 +35,7 @@ static int convert(const struct dc_posix_env *env, struct dc_error *err, const c
 
 enum application_states
 {
-    	PROCESS = DC_FSM_USER_START,    // 2
+    PROCESS = DC_FSM_USER_START,    // 2
 	UPPER,
 	LOWER,
 	NOTHING,
