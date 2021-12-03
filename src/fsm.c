@@ -157,8 +157,15 @@ int dc_fsm_run(const struct dc_posix_env *env,
             char *error_message;
             size_t error_message_size;
 
-            *from_state_id = from_id;
-            *to_state_id = to_id;
+            if(from_state_id)
+            {
+                *from_state_id = from_id;
+            }
+
+            if(to_state_id)
+            {
+                *to_state_id = to_id;
+            }
 
             // notify error
             if(info->bad_change_state)
@@ -198,8 +205,15 @@ int dc_fsm_run(const struct dc_posix_env *env,
     while(to_id != DC_FSM_EXIT);
 
     // commenting this out will give us the last non-exit transition, probably more useful
-    *from_state_id = from_id;
-    *to_state_id   = to_id;
+    if(from_state_id)
+    {
+        *from_state_id = from_id;
+    }
+
+    if(to_state_id)
+    {
+        *to_state_id = to_id;
+    }
 
     return 0;
 }
