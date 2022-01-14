@@ -198,8 +198,10 @@ int dc_fsm_run(const struct dc_posix_env *env,
 
         if(dc_error_has_error(err))
         {
+            // sometimes states do want to pass errors along... maybe?
+            // how do we sort out an internal error and an error from a state?
             // we had an issue that we can't cope with
-            break;
+            // break;
         }
     }
     while(to_id != DC_FSM_EXIT);
