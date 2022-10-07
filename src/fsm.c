@@ -176,10 +176,9 @@ int dc_fsm_run(const struct dc_posix_env     *env,
                 info->bad_change_state(env, err, info, from_id, to_id);
             }
 
-            // TODO: wrap the printf functions
             error_message_size = (size_t)snprintf(NULL, 0, "Unknown state transition: %d -> %d ", from_id, to_id);
             error_message      = dc_malloc(env, err, error_message_size);
-            sprintf(error_message, "Unknown state transition: %d -> %d ", from_id, to_id);
+            sprintf(error_message, "Unknown state transition: %d -> %d ", from_id, to_id);  // NOLINT(cert-err33-c)
             DC_ERROR_RAISE_USER(err, error_message, 1);
             dc_free(env, error_message, error_message_size);
 

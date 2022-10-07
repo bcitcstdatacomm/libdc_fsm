@@ -41,8 +41,8 @@ struct dc_fsm_transition {
 /**
  *
  * @param env
+ * @param err
  * @param name
- * @param verbose_file
  * @return
  */
 struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env,
@@ -79,6 +79,7 @@ void dc_fsm_info_set_bad_change_state(
 /**
  *
  * @param env
+ * @param err
  * @param info
  * @param from_state_id
  * @param to_state_id
