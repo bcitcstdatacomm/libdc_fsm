@@ -89,11 +89,7 @@ void dc_fsm_info_destroy(const struct dc_posix_env *env, struct dc_fsm_info **pi
     info = *pinfo;
     dc_free(env, info->name, info->name_length);
     dc_free(env, info, sizeof(struct dc_fsm_info));
-
-    if(env->null_free)
-    {
-        *pinfo = NULL;
-    }
+    *pinfo = NULL;
 }
 
 void dc_fsm_info_set_will_change_state(struct dc_fsm_info *info,
