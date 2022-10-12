@@ -143,11 +143,11 @@ endif ()
 
 add_library(dc_fsm SHARED ${SOURCE_LIST} ${HEADER_LIST})
 target_include_directories(dc_fsm PRIVATE include/dc_fsm)
+target_include_directories(dc_fsm PRIVATE /usr/local/include)
+target_link_directories(dc_fsm PRIVATE /usr/local/lib)
 
 if (NOT APPLE)
     target_include_directories(dc_fsm PRIVATE /usr/include)
-    target_include_directories(dc_fsm PRIVATE /usr/local/include)
-    target_link_directories(dc_fsm PRIVATE /usr/local/lib)
 endif ()
 
 set_target_properties(dc_fsm PROPERTIES
