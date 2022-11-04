@@ -153,7 +153,6 @@ set_target_properties(dc_fsm PROPERTIES
 find_library(LIBDC_ERROR dc_error REQUIRED)
 find_library(LIBDC_ENV dc_env REQUIRED)
 find_library(LIBDC_C dc_c REQUIRED)
-find_library(LIBDC_POSIX dc_posix REQUIRED)
 
 target_link_libraries(dc_fsm PUBLIC ${LIBDC_ERROR})
 target_link_libraries(dc_fsm PUBLIC ${LIBDC_ENV})
