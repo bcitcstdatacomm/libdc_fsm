@@ -17,15 +17,6 @@ set(HEADER_LIST ${INCLUDE_DIR}/dc_fsm/fsm.h)
 
 add_compile_definitions(_POSIX_C_SOURCE=200809L)
 add_compile_definitions(_XOPEN_SOURCE=700)
-add_compile_definitions(_GNU_SOURCE)
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    add_compile_definitions(_DARWIN_C_SOURCE)
-endif ()
-
-if (${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
-    add_compile_definitions(__BSD_VISIBLE)
-endif ()
 
 include_directories(${INCLUDE_DIR})
 add_compile_options("-Wall"
@@ -158,12 +149,6 @@ endif ()
 set_target_properties(dc_fsm PROPERTIES
         VERSION ${PROJECT_VERSION}
         SOVERSION ${PROJECT_VERSION_MAJOR})
-
-find_library(LIBDC_ERROR dc_error REQUIRED)
-find_library(LIBDC_POSIX dc_posix REQUIRED)
-
-target_link_libraries(dc_fsm PUBLIC ${LIBDC_ERROR})
-target_link_libraries(dc_fsm PUBLIC ${LIBDC_POSIX})
 
 install(TARGETS dc_fsm LIBRARY DESTINATION lib)
 install(FILES ${HEADER_LIST} DESTINATION include/dc_fsm)

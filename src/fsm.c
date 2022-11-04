@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-#include "fsm.h"
-#include <dc_posix/dc_stdlib.h>
-#include <dc_posix/dc_string.h>
+
+#include "dc_fsm/fsm.h"
+#include <dc_c/dc_stdlib.h>
+#include <dc_c/dc_string.h>
+
 
 static dc_fsm_state_func
-fsm_transition(const struct dc_posix_env *env, int from_id, int to_id, const struct dc_fsm_transition transitions[]);
+fsm_transition(const struct dc_env *env, int from_id, int to_id, const struct dc_fsm_transition transitions[]);
 
 struct dc_fsm_info
 {
@@ -28,27 +30,27 @@ struct dc_fsm_info
     int    from_state_id;
     int    current_state_id;
 
-    void (*will_change_state)(const struct dc_posix_env *env,
+    void (*will_change_state)(const struct dc_env *env,
                               struct dc_error           *err,
                               const struct dc_fsm_info  *info,
                               int                        from_state_id,
                               int                        to_state_id);
 
-    void (*did_change_state)(const struct dc_posix_env *env,
+    void (*did_change_state)(const struct dc_env *env,
                              struct dc_error           *err,
                              const struct dc_fsm_info  *info,
                              int                        from_state_id,
                              int                        to_state_id,
                              int                        next_id);
 
-    void (*bad_change_state)(const struct dc_posix_env *env,
+    void (*bad_change_state)(const struct dc_env *env,
                              struct dc_error           *err,
                              const struct dc_fsm_info  *info,
                              int                        from_state_id,
                              int                        to_state_id);
 };
 
-struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env, struct dc_error *err, const char *name)
+struct dc_fsm_info *dc_fsm_info_create(const struct dc_env *env, struct dc_error *err, const char *name)
 {
     struct dc_fsm_info *info;
 
@@ -68,7 +70,7 @@ struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env, struct dc
         }
         else
         {
-            dc_free(env, info, sizeof(struct dc_fsm_info));
+            dc_free(env, info);
             info = NULL;
         }
     }
@@ -81,19 +83,19 @@ const char *dc_fsm_info_get_name(const struct dc_fsm_info *info)
     return info->name;
 }
 
-void dc_fsm_info_destroy(const struct dc_posix_env *env, struct dc_fsm_info **pinfo)
+void dc_fsm_info_destroy(const struct dc_env *env, struct dc_fsm_info **pinfo)
 {
     struct dc_fsm_info *info;
 
     DC_TRACE(env);
     info = *pinfo;
-    dc_free(env, info->name, info->name_length);
-    dc_free(env, info, sizeof(struct dc_fsm_info));
+    dc_free(env, info->name);
+    dc_free(env, info);
     *pinfo = NULL;
 }
 
 void dc_fsm_info_set_will_change_state(struct dc_fsm_info *info,
-                                       void (*notifier)(const struct dc_posix_env *env,
+                                       void (*notifier)(const struct dc_env *env,
                                                         struct dc_error           *err,
                                                         const struct dc_fsm_info  *info,
                                                         int                        from_state_id,
@@ -103,7 +105,7 @@ void dc_fsm_info_set_will_change_state(struct dc_fsm_info *info,
 }
 
 void dc_fsm_info_set_did_change_state(struct dc_fsm_info *info,
-                                      void (*notifier)(const struct dc_posix_env *env,
+                                      void (*notifier)(const struct dc_env *env,
                                                        struct dc_error           *err,
                                                        const struct dc_fsm_info  *info,
                                                        int                        from_state_id,
@@ -114,7 +116,7 @@ void dc_fsm_info_set_did_change_state(struct dc_fsm_info *info,
 }
 
 void dc_fsm_info_set_bad_change_state(struct dc_fsm_info *info,
-                                      void (*notifier)(const struct dc_posix_env *env,
+                                      void (*notifier)(const struct dc_env *env,
                                                        struct dc_error           *err,
                                                        const struct dc_fsm_info  *info,
                                                        int                        from_state_id,
@@ -123,7 +125,7 @@ void dc_fsm_info_set_bad_change_state(struct dc_fsm_info *info,
     info->bad_change_state = notifier;
 }
 
-int dc_fsm_run(const struct dc_posix_env     *env,
+int dc_fsm_run(const struct dc_env     *env,
                struct dc_error               *err,
                struct dc_fsm_info            *info,
                int                           *from_state_id,
@@ -176,7 +178,7 @@ int dc_fsm_run(const struct dc_posix_env     *env,
             error_message      = dc_malloc(env, err, error_message_size);
             sprintf(error_message, "Unknown state transition: %d -> %d ", from_id, to_id);  // NOLINT(cert-err33-c)
             DC_ERROR_RAISE_USER(err, error_message, 1);
-            dc_free(env, error_message, error_message_size);
+            dc_free(env, error_message);
 
             return -1;
         }
@@ -218,7 +220,7 @@ int dc_fsm_run(const struct dc_posix_env     *env,
 }
 
 static dc_fsm_state_func
-fsm_transition(const struct dc_posix_env *env, int from_id, int to_id, const struct dc_fsm_transition transitions[])
+fsm_transition(const struct dc_env *env, int from_id, int to_id, const struct dc_fsm_transition transitions[])
 {
     const struct dc_fsm_transition *transition;
 

@@ -1,6 +1,7 @@
 #ifndef LIBDC_FSM_FSM_H
 #define LIBDC_FSM_FSM_H
 
+
 /*
  * Copyright 2021-2021 D'Arcy Smith.
  *
@@ -17,8 +18,10 @@
  * limitations under the License.
  */
 
-#include <dc_posix/dc_posix_env.h>
+
+#include <dc_env/env.h>
 #include <stdio.h>
+
 
 struct dc_fsm_info;
 
@@ -29,7 +32,7 @@ typedef enum {
   DC_FSM_USER_START,  // 2
 } dc_fsm_state;
 
-typedef int (*dc_fsm_state_func)(const struct dc_posix_env *env,
+typedef int (*dc_fsm_state_func)(const struct dc_env *env,
                                  struct dc_error *err, void *arg);
 
 struct dc_fsm_transition {
@@ -45,7 +48,7 @@ struct dc_fsm_transition {
  * @param name
  * @return
  */
-struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env,
+struct dc_fsm_info *dc_fsm_info_create(const struct dc_env *env,
                                        struct dc_error *err, const char *name);
 
 /**
@@ -53,26 +56,26 @@ struct dc_fsm_info *dc_fsm_info_create(const struct dc_posix_env *env,
  * @param env
  * @param pinfo
  */
-void dc_fsm_info_destroy(const struct dc_posix_env *env,
+void dc_fsm_info_destroy(const struct dc_env *env,
                          struct dc_fsm_info **pinfo);
 
 const char *dc_fsm_info_get_name(const struct dc_fsm_info *info);
 
 void dc_fsm_info_set_will_change_state(
     struct dc_fsm_info *info,
-    void (*notifier)(const struct dc_posix_env *env, struct dc_error *err,
+    void (*notifier)(const struct dc_env *env, struct dc_error *err,
                      const struct dc_fsm_info *info, int from_state_id,
                      int to_state_id));
 
 void dc_fsm_info_set_did_change_state(
     struct dc_fsm_info *info,
-    void (*notifier)(const struct dc_posix_env *env, struct dc_error *err,
+    void (*notifier)(const struct dc_env *env, struct dc_error *err,
                      const struct dc_fsm_info *info, int from_state_id,
                      int to_state_id, int next_id));
 
 void dc_fsm_info_set_bad_change_state(
     struct dc_fsm_info *info,
-    void (*notifier)(const struct dc_posix_env *env, struct dc_error *err,
+    void (*notifier)(const struct dc_env *env, struct dc_error *err,
                      const struct dc_fsm_info *info, int from_state_id,
                      int to_state_id));
 
@@ -87,8 +90,9 @@ void dc_fsm_info_set_bad_change_state(
  * @param transitions
  * @return
  */
-int dc_fsm_run(const struct dc_posix_env *env, struct dc_error *err,
+int dc_fsm_run(const struct dc_env *env, struct dc_error *err,
                struct dc_fsm_info *info, int *from_state_id, int *to_state_id,
                void *arg, const struct dc_fsm_transition transitions[]);
+
 
 #endif // LIBDC_FSM_FSM_H
