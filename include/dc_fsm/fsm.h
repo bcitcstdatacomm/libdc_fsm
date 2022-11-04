@@ -20,7 +20,11 @@
 
 
 #include <dc_env/env.h>
-#include <stdio.h>
+
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 struct dc_fsm_info;
@@ -93,6 +97,11 @@ void dc_fsm_info_set_bad_change_state(
 int dc_fsm_run(const struct dc_env *env, struct dc_error *err,
                struct dc_fsm_info *info, int *from_state_id, int *to_state_id,
                void *arg, const struct dc_fsm_transition transitions[]);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif // LIBDC_FSM_FSM_H

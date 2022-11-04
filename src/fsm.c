@@ -18,6 +18,7 @@
 #include "dc_fsm/fsm.h"
 #include <dc_c/dc_stdlib.h>
 #include <dc_c/dc_string.h>
+#include <stdio.h>
 
 
 static dc_fsm_state_func
