@@ -77,35 +77,29 @@ list(APPEND COMPILER_FLAGS
 
 if (${SANITIZE})
     list(APPEND COMPILER_FLAGS
-            "-fsanitize=address"
+            "-fsanitize=pointer-compare"
+            "-fsanitize=pointer-subtract"
             "-fsanitize=undefined"
             "-fsanitize-address-use-after-scope"
-            "-fstack-protector-all"
-            "-fdelete-null-pointer-checks"
+            "-fcf-protection=full"
+            ##            "-fharden-compares"
+            ##            "-fharden-conditional-branches"
+            "-fharden-control-flow-redundancy"
+            "-fstack-protector=all"
+            ##            "-fstack-check"
+            "-fstack-clash-protection"
+            "-finstrument-functions"
+            "-fsanitize=leak"
+            "-fno-delete-null-pointer-checks"
             "-fno-omit-frame-pointer"
-            "-fsanitize=leak")
+            )
 
+    add_compile_options("-fsanitize=address")
     add_link_options("-fsanitize=address")
     add_link_options("-fsanitize=bounds")
 endif ()
 
 AddCompileOptions(${COMPILER_FLAGS})
-
-if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
-    #    add_compile_options("-O2")
-    add_compile_options("-Wunsuffixed-float-constants"
-            "-Warith-conversion"
-            "-Wunsafe-loop-optimizations"
-            "-Wvector-operation-performance"
-            "-Walloc-zero"
-            "-Wtrampolines"
-            "-Wtsan"
-            "-Wformat-overflow=2"
-            "-Wformat-signedness"
-            "-Wjump-misses-init"
-            "-Wformat-truncation=2")
-elseif ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
-endif ()
 
 find_package(Doxygen
         REQUIRED
