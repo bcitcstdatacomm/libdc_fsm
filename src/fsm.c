@@ -138,6 +138,7 @@ int dc_fsm_run(const struct dc_env     *env,
     int to_id;
 
     DC_TRACE(env);
+
     from_id = info->from_state_id;
     to_id   = info->current_state_id;
 

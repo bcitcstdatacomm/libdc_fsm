@@ -63,20 +63,40 @@ struct dc_fsm_info *dc_fsm_info_create(const struct dc_env *env,
 void dc_fsm_info_destroy(const struct dc_env *env,
                          struct dc_fsm_info **pinfo);
 
+/**
+ *
+ * @param info
+ * @return
+ */
 const char *dc_fsm_info_get_name(const struct dc_fsm_info *info);
 
+/**
+ *
+ * @param info
+ * @param notifier
+ */
 void dc_fsm_info_set_will_change_state(
     struct dc_fsm_info *info,
     void (*notifier)(const struct dc_env *env, struct dc_error *err,
                      const struct dc_fsm_info *info, int from_state_id,
                      int to_state_id));
 
+/**
+ *
+ * @param info
+ * @param notifier
+ */
 void dc_fsm_info_set_did_change_state(
     struct dc_fsm_info *info,
     void (*notifier)(const struct dc_env *env, struct dc_error *err,
                      const struct dc_fsm_info *info, int from_state_id,
                      int to_state_id, int next_id));
 
+/**
+ *
+ * @param info
+ * @param notifier
+ */
 void dc_fsm_info_set_bad_change_state(
     struct dc_fsm_info *info,
     void (*notifier)(const struct dc_env *env, struct dc_error *err,
